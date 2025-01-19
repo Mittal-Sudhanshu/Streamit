@@ -11,5 +11,6 @@ func AuthHandler(router *gin.RouterGroup) {
 	{
 		auth.GET("/google", controllers.GoogleLoginHandler)
 		auth.GET("/google/callback", controllers.GoogleCallbackHandler)
+		auth.GET("/", controllers.HomeHandler)
 	}
 }

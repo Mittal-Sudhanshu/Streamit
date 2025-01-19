@@ -1,9 +1,9 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"os"
+	"sync"
 
 	routes "streamit/router"
 	"streamit/utils"
@@ -11,12 +11,35 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth/gothic"
+	log "github.com/sirupsen/logrus"
 )
 
-func main() {
-	utils.LoadEnv()         // Load environment variables
-	utils.SetupGoogleAuth() // Initialize Google OAuth
+func Init() {
+	utils.LoadEnv()
+	utils.SetupGoogleAuth()
+	utils.ConnectDB()
+}
 
+func main() {
+	Init()
+
+	// WaitGroup to run Gin and RTMP servers concurrently
+	var wg sync.WaitGroup
+
+	// Start RTMP Server
+	server := CreateRTMPServer()
+	if server == nil {
+		log.Fatal("Failed to create RTMP server")
+	} else {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			log.Info("Starting RTMP server...")
+			server.Start() // Assuming this blocks while the server is running
+		}()
+	}
+
+	// Start Gin Server
 	r := gin.Default()
 
 	// Middleware for adapting gothic with Gin
@@ -27,13 +50,24 @@ func main() {
 		c.Next()
 	})
 
-	gothic.Store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET"))) // Initialize session store
+	// Initialize session store
+	gothic.Store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET")))
+
+	// Serve HLS files
+	// r.Static("hls", "./hls")
 
 	// Auth Routes
 	auth := r.Group("/")
-	{
-		routes.AuthHandler(auth)
-	}
+	routes.AuthHandler(auth)
 
-	log.Fatal(r.Run(":8080"))
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		log.Info("Starting Gin server on port 8080...")
+		if err := r.Run(":8080"); err != nil {
+			log.Fatalf("Gin server failed: %v", err)
+		}
+	}()
+
+	wg.Wait()
 }
