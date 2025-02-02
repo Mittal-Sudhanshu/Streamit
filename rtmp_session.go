@@ -9,6 +9,7 @@ import (
 	"io"
 	"math"
 	"net"
+	"os/exec"
 	"strconv"
 	"strings"
 	"sync"
@@ -75,6 +76,8 @@ type RTMPSession struct {
 
 	bitrate       uint64
 	bitrate_cache BitrateCache
+
+	ffmpegProcess *exec.Cmd
 }
 
 func CreateRTMPSession(server *RTMPServer, id uint64, ip string, c net.Conn) RTMPSession {
@@ -527,7 +530,7 @@ func (s *RTMPSession) HandleConnect(cmd *RTMPCommand) bool {
 
 	transId := cmd.GetArg("transId").GetInteger()
 
-	LogRequest(s.id, s.ip, "CONNECT '"+s.channel+"'")
+	LogRequest(s.id, s.ip, "CONNECT '"+s.channel+"'"+s.key)
 
 	s.SendWindowACK(5000000)
 	s.SetPeerBandwidth(5000000, 2)
@@ -571,7 +574,7 @@ func (s *RTMPSession) HandlePublish(cmd *RTMPCommand, packet *RTMPPacket) bool {
 		return false
 	}
 
-	LogRequest(s.id, s.ip, "PUBLISH ("+strconv.Itoa(int(s.publishStreamId))+") '"+s.channel+"'")
+	LogRequest(s.id, s.ip, "PUBLISH ("+strconv.Itoa(int(s.publishStreamId))+") '"+s.channel+"'"+" '"+s.key+"'")
 
 	// Callback
 	if !s.SendStartCallback() {
@@ -587,7 +590,7 @@ func (s *RTMPSession) HandlePublish(cmd *RTMPCommand, packet *RTMPPacket) bool {
 	s.SendStatusMessage(s.publishStreamId, "status", "NetStream.Publish.Start", s.GetStreamPath()+" is now published.")
 
 	s.StartIdlePlayers()
-
+	go s.StartFFmpegConversion()
 	return true
 }
 

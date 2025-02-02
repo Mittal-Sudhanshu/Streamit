@@ -148,7 +148,6 @@ func CreateRTMPServer() *RTMPServer {
 		config := &tls.Config{
 			GetCertificate: cerLoader.GetCertificate,
 		}
-
 		lnSSL, errSSL := tls.Listen("tcp", bind_addr+":"+strconv.Itoa(ssl_port), config)
 
 		if errSSL != nil {

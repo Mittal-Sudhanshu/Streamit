@@ -3,14 +3,13 @@ package routes
 import (
 	"streamit/controllers"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
-func AuthHandler(router *gin.RouterGroup) {
+func AuthHandler(router fiber.Router) {
 	auth := router.Group("/auth")
-	{
-		auth.GET("/google", controllers.GoogleLoginHandler)
-		auth.GET("/google/callback", controllers.GoogleCallbackHandler)
-		auth.GET("/", controllers.HomeHandler)
-	}
+
+	auth.Get("/google", controllers.GoogleLoginHandler)
+	auth.Get("/google/callback", controllers.GoogleCallbackHandler)
+	auth.Get("/", controllers.HomeHandler)
 }

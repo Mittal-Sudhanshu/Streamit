@@ -11,6 +11,8 @@ import (
 
 var Db *mongo.Client
 var UserDb *mongo.Collection
+var ChannelDb *mongo.Collection
+var StreamDb *mongo.Collection
 
 func ConnectDB() {
 	var err error
@@ -25,10 +27,20 @@ func ConnectDB() {
 		log.Fatal(err)
 	}
 	log.Println("Connected to MongoDB!")
-	InitUsersCollection()
+	go func() {
+		InitUsersCollection()
+		InitChannelsCollection()
+		StreamCollection()
+	}()
 }
 
 func InitUsersCollection() {
 	UserDb = Db.Database("streamit").Collection("users")
 }
 
+func InitChannelsCollection() {
+	ChannelDb = Db.Database("streamit").Collection("channels")
+}
+func StreamCollection() {
+	StreamDb = Db.Database("streamit").Collection("streams")
+}

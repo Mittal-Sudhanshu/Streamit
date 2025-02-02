@@ -7,15 +7,17 @@
 //	}
 package models
 
-import "time"
+type GoogleResponse struct {
+	ID       string `json:"id"`
+	Email    string `json:"email"`
+	Verified bool   `json:"verified_email"`
+	Picture  string `json:"picture"`
+}
 
 type User struct {
-	Id          string    `bson:"_id" json:"id"`
-	Email       string    `bson:"email" json:"email"`
-	Picture_url string    `bson:"picture_url" json:"picture_url"`
-	Name        string    `bson:"name" json:"name"`
-	Admin       bool      `bson:"admin" json:"admin"`
-	CreatedAt   time.Time `bson:"created_at" json:"created_at"`
-	UpdatedAt   time.Time `bson:"updated_at" json:"updated_at"`
+	ID      string `bson:"_id" json:"id"`
+	Email   string `json:"email"`
+	Picture string `json:"picture"`
+	IsAdmin bool   `json:"isAdmin"`
 }
 
