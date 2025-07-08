@@ -1,0 +1,19 @@
+sequenceDiagram
+  participant U as User
+  participant F as Fiber Server
+  participant G as Google OAuth
+  participant M as MongoDB
+  participant R as RTMP Server
+  participant C as Callback Endpoint
+
+  U->>F: GET /auth/google
+  F->>G: Redirect to Google OAuth
+  G->>U: Google Login
+  U->>F: GET /auth/google/callback?code=...
+  F->>G: Exchange code for token
+  G->>F: Return user info
+  F->>M: Save user info
+  F->>U: Return JWT
+  U->>R: Start RTMP stream
+  R->>M: Save stream info
+  R->>C: (Optional) Send callback 

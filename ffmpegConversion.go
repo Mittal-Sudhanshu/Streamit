@@ -5,10 +5,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"streamit/utils"
 )
 
 func (s *RTMPSession) StartFFmpegConversion() {
-	hlsPath := fmt.Sprintf("/tmp/hls/%s/%s",s.channel, s.key) // Local storage for HLS segments
+	hlsPath := fmt.Sprintf("/tmp/hls/%s/%s", s.channel, s.key) // Local storage for HLS segments
 	os.MkdirAll(hlsPath, os.ModePerm)
 
 	ffmpegCmd := exec.Command(
@@ -30,6 +31,8 @@ func (s *RTMPSession) StartFFmpegConversion() {
 	ffmpegCmd.Stderr = os.Stderr
 
 	err := ffmpegCmd.Start()
+	go utils.WatchAndUpload(hlsPath, s.key)
+
 	if err != nil {
 		fmt.Println("Failed to start FFmpeg:", err)
 		return

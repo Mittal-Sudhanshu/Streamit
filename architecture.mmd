@@ -1,0 +1,16 @@
+graph TD
+  User["User"]
+  Fiber["Fiber HTTP Server"]
+  RTMP["RTMP Server"]
+  MongoDB["MongoDB"]
+  Google["Google OAuth"]
+  JWT["JWT"]
+  Callback["Callback Endpoint (optional)"]
+
+  User -->|HTTP/REST| Fiber
+  User -->|RTMP| RTMP
+  Fiber -->|OAuth| Google
+  Fiber -->|DB| MongoDB
+  Fiber -->|JWT| JWT
+  RTMP -->|DB| MongoDB
+  RTMP -->|Callback| Callback 

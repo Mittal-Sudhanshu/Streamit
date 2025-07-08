@@ -1,0 +1,72 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Streamit API",
+    "version": "1.0.0",
+    "description": "API documentation for Streamit backend."
+  },
+  "paths": {
+    "/auth/google": {
+      "get": {
+        "summary": "Redirect to Google OAuth login",
+        "responses": {
+          "302": {"description": "Redirects to Google login"}
+        }
+      }
+    },
+    "/auth/google/callback": {
+      "get": {
+        "summary": "Google OAuth callback handler",
+        "parameters": [
+          {"name": "code", "in": "query", "required": true, "schema": {"type": "string"}}
+        ],
+        "responses": {
+          "200": {"description": "Returns JWT token on success"},
+          "400": {"description": "Invalid code or error"}
+        }
+      }
+    },
+    "/streams": {
+      "get": {
+        "summary": "List all streams",
+        "responses": {
+          "200": {"description": "List of streams"}
+        }
+      },
+      "post": {
+        "summary": "Create a new stream",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {"type": "string"},
+                  "description": {"type": "string"}
+                },
+                "required": ["title"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {"description": "Stream created"}
+        }
+      }
+    },
+    "/streams/{id}": {
+      "get": {
+        "summary": "Get stream by ID",
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "schema": {"type": "string"}}
+        ],
+        "responses": {
+          "200": {"description": "Stream details"},
+          "404": {"description": "Stream not found"}
+        }
+      }
+    }
+  },
+  "components": {}
+} 
